@@ -1,0 +1,259 @@
+﻿<!DOCTYPE HTML>
+<html>
+
+<head>
+	<title>V 免签支付</title>
+	<meta name="keywords" content="V 免签支付,管理后台,个人免签支付" />
+	<meta name="description" content="V 免签支付 - 个人免签支付解决方案" />
+	<meta charset="utf-8" />
+	<link rel="icon" href="favicon.ico?v=1" type="image/x-icon">
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	<script src="js/jquery.min.js"></script>
+	<script src="https://lib.baomitu.com/layer/3.1.1/layer.js"></script>
+
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+			font-family: "Microsoft YaHei", sans-serif;
+		}
+
+		body {
+			background: url("assets/images/bg0.jpg") center center / cover no-repeat fixed;
+			min-height: 100vh;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 20px;
+		}
+
+		.login-card {
+			width: 100%;
+			max-width: 380px;
+			background: #fff;
+			backdrop-filter: blur(8px);
+			padding: 45px 40px;
+			box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+			border-radius: 12px;
+			border: 1px solid rgba(255, 255, 255, 0.2);
+		}
+
+		.logo-area {
+			text-align: center;
+			margin-bottom: 30px;
+		}
+
+		.logo-icon {
+			width: 48px;
+			height: 48px;
+			border-radius: 50%;
+			background: #16baaa;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			margin: 0 auto 12px;
+			font-size: 20px;
+			color: #fff;
+		}
+
+		.logo-area h1 {
+			font-size: 20px;
+			color: #222;
+			font-weight: 500;
+			margin-bottom: 4px;
+		}
+
+		.logo-area p {
+			color: #444;
+			font-size: 13px;
+		}
+
+		.form-item {
+			margin-bottom: 20px;
+		}
+
+		.form-item label {
+			display: block;
+			color: #222;
+			font-size: 13px;
+			margin-bottom: 6px;
+		}
+
+		.form-item input {
+			width: 100%;
+			height: 40px;
+			border: 1px solid #e5e5e5;
+			background: #fff;
+			border-radius: 6px;
+			padding: 0 12px;
+			font-size: 14px;
+			outline: none;
+			transition: all 0.2s;
+		}
+
+		.form-item input:focus {
+			border-color: #16baaa;
+			box-shadow: 0 0 0 3px rgba(22, 186, 170, 0.2);
+		}
+
+		.eye-btn {
+			position: absolute;
+			right: 12px;
+			top: 50%;
+			transform: translateY(-50%);
+			background: transparent;
+			border: none;
+			cursor: pointer;
+			width: 24px;
+			height: 24px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			color: #666;
+			transition: color 0.2s;
+			font-size: 16px;
+		}
+
+		.eye-btn:hover {
+			color: #16baaa;
+		}
+
+		.btn-login {
+			width: 100%;
+			height: 40px;
+			background: #16baaa;
+			color: #fff;
+			border: none;
+			border-radius: 6px;
+			font-size: 14px;
+			cursor: pointer;
+			transition: all 0.2s;
+		}
+
+		.btn-login:hover {
+			background: #14a899;
+			transform: translateY(-1px);
+			box-shadow: 0 4px 12px rgba(22, 186, 170, 0.3);
+		}
+
+		#msg {
+			color: #f53f3f;
+			text-align: center;
+			margin-top: 12px;
+			font-size: 13px;
+		}
+
+		.copyright {
+			text-align: center;
+			margin-top: 30px;
+			color: #444;
+			font-size: 13px;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="login-card">
+		<div class="logo-area">
+			<div class="logo-icon">
+				<i class="fas fa-wallet"></i>
+			</div>
+			<h1>V 免签支付</h1>
+			<p>个人免签支付解决方案</p>
+		</div>
+
+		<form method="post" action="javascript:login();">
+			<div class="form-item">
+				<label>账号</label>
+				<input type="text" name="user" id="user" placeholder="请输入账号" />
+			</div>
+			<div class="form-item">
+				<label>密码</label>
+				<div style="position: relative;">
+					<input type="password" name="pass" id="pass" placeholder="请输入密码" />
+					<button type="button" class="eye-btn" onclick="toggleLoginPassword()">
+						<i id="eyeIcon" class="fas fa-eye"></i>
+					</button>
+				</div>
+			</div>
+
+			<button type="submit" class="btn-login">登录</button>
+		</form>
+
+		<div id="msg"></div>
+
+		<div class="copyright">
+			&copy; <span id="year"></span> V 免签支付・发光的神
+		</div>
+	</div>
+
+	<script>
+		document.getElementById('year').textContent = new Date().getFullYear();
+
+		function toggleLoginPassword() {
+			let passInput = document.getElementById('pass');
+			let eyeIcon = document.getElementById('eyeIcon');
+			if (passInput.type === 'password') {
+				passInput.type = 'text';
+				eyeIcon.className = 'fas fa-eye-slash';
+			} else {
+				passInput.type = 'password';
+				eyeIcon.className = 'fas fa-eye';
+			}
+		}
+
+		try {
+			$.post("index/index/getReturn", function (data) { });
+			$.ajax({
+				type: "POST",
+				url: "index/index/getReturn",
+				success: function (resp, status) { },
+				error: function (xhr, errorText, errorType) {
+					if (xhr.status == 404) {
+						layer.open({
+							type: 1,
+							skin: 'outtext',
+							closeBtn: 0,
+							anim: 2,
+							title: '运行环境检测',
+							content: "<div style='padding:10px;'>检测到搭建出现问题：伪静态规则未设置！<br>请在宝塔面板-网站-设置-伪静态->选择thinkphp并保存!</div>"
+						});
+					} else {
+						layer.open({
+							type: 1,
+							skin: 'outtext',
+							anim: 2,
+							title: '运行环境检测',
+							content: "<div style='padding:10px;'>检测到搭建出现问题：PHP版本必须大于或等于5.6！</div>"
+						});
+					}
+				},
+				complete: function () { }
+			});
+		} catch (e) {
+			layer.alert("检测到搭建服务端出现问题：伪静态规则未设置！<br>请在宝塔面板-网站-设置-伪静态->选择thinkphp并保存!");
+		}
+
+		function login() {
+			try {
+				$.post("login", "user=" + $("#user").val() + "&pass=" + $("#pass").val(), function (data) {
+					layer.msg(data.msg);
+					if (data.code == 1) {
+						window.location.href = "admin.html";
+					}
+				});
+			} catch (e) {
+				layer.alert("程序出错，请检查：<br>1、伪静态是否设置成功<br>2、是否设置好数据库账号密码并导入数据库脚本");
+			}
+		}
+	</script>
+	<style>
+		.outtext {
+			color: red;
+		}
+	</style>
+</body>
+
+</html>
