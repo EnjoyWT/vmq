@@ -122,15 +122,11 @@ APP 跑在安卓手机上，开辅助功能盯着微信和支付宝的通知栏�
 ```bash
 # 1. 装依赖
 composer install
-
 # 2. 导入 v.sql 到数据库
-
 # 3. 编辑 config/database.php，填入数据库连接信息
-
 # 4. 设置网站运行目录为 public/
 # 宝塔面板：网站 → 设置 → 网站目录 → 运行目录选 /public，关闭防跨站
 # 并设置默认文档第一行为 index.html
-
 # 5. 配置伪静态（ThinkPHP 规则）
 # 宝塔面板：伪静态直接选 thinkphp
 ```
