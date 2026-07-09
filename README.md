@@ -27,7 +27,7 @@
 
 ### APP 图标
 
-<img src="images/v图标.png" alt="APP图标" width="180">
+<img src="images/v图标.png" alt="APP图标" width="190">
 
 
 ### APP 主页
