@@ -27,12 +27,12 @@
 
 ### APP 图标
 
-<img src="images/v图标.png" alt="APP图标">
+<img src="images/v图标.png" alt="APP图标" width="180">
 
 
 ### APP 主页
 
-<img src="images/v主页.png" alt="APP主页">
+<img src="images/v主页.png" alt="APP主页"  width="400">
 
 
 ## 跟原版的区别
