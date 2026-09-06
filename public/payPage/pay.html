@@ -71,6 +71,10 @@
             text-decoration: none;
         }
 
+        .lang-switch.zfb a {
+            color: #1677FF;
+        }
+
         .back-merchant-btn {
             display: block;
             width: 100%;
@@ -90,6 +94,15 @@
 
         .back-merchant-btn:hover {
             background-color: #f0f9f0;
+        }
+
+        .back-merchant-btn.zfb {
+            border-color: #1677FF;
+            color: #1677FF;
+        }
+
+        .back-merchant-btn.zfb:hover {
+            background-color: #e8f0fe;
         }
 
         .pay-card {
@@ -161,10 +174,18 @@
             box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
         }
 
+        .time-item.zfb strong {
+            background: #1677FF;
+        }
+
         .tip-text {
             margin-top: 20px;
             font-size: 14px;
             color: #07c160;
+        }
+
+        .tip-text.zfb {
+            color: #1677FF;
         }
 
         .detail {
@@ -188,6 +209,10 @@
             color: #07c160;
             cursor: pointer;
             margin-top: 10px;
+        }
+
+        .detail .arrow.zfb {
+            color: #1677FF;
         }
 
         .foot {
@@ -222,6 +247,10 @@
             border-top: 4px solid #07C160;
             border-radius: 50%;
             animation: spin 1s linear infinite;
+        }
+
+        .loading-spinner.zfb {
+            border-top-color: #1677FF;
         }
 
         @keyframes spin {
@@ -331,6 +360,21 @@
     <script src="../js/jquery.min.js"></script>
     <script src="../js/vue.min.js"></script>
     <script>
+        function applyPayTheme(payType) {
+            var isZfb = parseInt(payType) === 2;
+            var sels = ['.lang-switch', '.back-merchant-btn', '.time-item', '.tip-text', '.detail .arrow', '.loading-spinner'];
+            for (var i = 0; i < sels.length; i++) {
+                var node = document.querySelector(sels[i]);
+                if (node) {
+                    if (isZfb) {
+                        node.classList.add('zfb');
+                    } else {
+                        node.classList.remove('zfb');
+                    }
+                }
+            }
+        }
+
         function aaa() {
             if ($('#orderDetail').hasClass('detail-open')) {
                 $('#orderDetail .detail-ct').slideUp(500, function () {
@@ -481,6 +525,8 @@
                 })
 
                 window.payType = data.data.payType;
+
+                applyPayTheme(data.data.payType);
 
                 check();
             } else {
