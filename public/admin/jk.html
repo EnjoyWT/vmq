@@ -77,11 +77,9 @@
             $("#lastheart").val(formatDate(data.data.lastheart));
             $("#lastpay").val(formatDate(data.data.lastpay));
 
-            var path = window.location.pathname;
-            var basePath = path.substring(0, path.lastIndexOf('/') + 1);
-            var img = window.location.protocol + '//' + window.location.host + basePath + data.data.key;
-            $("#input").val(img);
-            $("#pzqrcode").attr("src", "enQrcode?url=" + encodeURIComponent(img));
+            var configData = window.location.host + '/' + data.data.key;
+            $("#input").val(configData);
+            $("#pzqrcode").attr("src", "enQrcode?url=" + encodeURIComponent(configData));
         }
     });
 </script>

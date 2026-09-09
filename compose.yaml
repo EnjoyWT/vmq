@@ -62,6 +62,20 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command:
+      - tunnel
+      - --no-autoupdate
+      - --protocol
+      - auto
+      - run
+      - --token
+      - ${CLOUDFLARED_TOKEN}
+    depends_on:
+      web:
+        condition: service_healthy
 
 volumes:
   vmq_db_data:
