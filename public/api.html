@@ -1,7 +1,7 @@
 <blockquote class="layui-elem-quote news_search">
     <div class="layui-inline">
-        <p>异步回调地址：<span class="auto-domain">http://服务器域名/example/notify.php</span></p>
-        <p>同步回调地址：<span class="auto-domain">http://服务器域名/example/return.php</span></p>
+        <p>异步回调地址：请在后台或 <code>.env</code> 配置你的 Cloudflare HTTPS 接口</p>
+        <p>回调成功响应：<code>success</code></p>
     </div>
 </blockquote>
 
@@ -82,12 +82,12 @@
                             <tr>
                                 <td>notifyUrl</td>
                                 <td>字符串</td>
-                                <td>【可选】传入则设置该订单的异步通知接口为该参数，不传或传空则使用后台设置的接口</td>
+                                <td>默认忽略并使用后台设置；仅 VMQ_ALLOW_ORDER_CALLBACK_OVERRIDE=true 时允许覆盖</td>
                             </tr>
                             <tr>
                                 <td>returnUrl</td>
                                 <td>字符串</td>
-                                <td>【可选】传入则设置该订单的同步跳转接口为该参数，不传或传空则使用后台设置的接口</td>
+                                <td>默认忽略并使用后台设置；仅 VMQ_ALLOW_ORDER_CALLBACK_OVERRIDE=true 时允许覆盖</td>
                             </tr>
                         </tbody>
                     </table>

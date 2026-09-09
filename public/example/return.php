@@ -11,7 +11,7 @@ $reallyPrice = $_GET['reallyPrice'] ?? '';
 $sign        = $_GET['sign']        ?? '';
 
 $_sign = md5($payId . $param . $type . $price . $reallyPrice . $key);
-if ($_sign != $sign) {
+if (strlen($sign) !== 32 || !hash_equals($_sign, strtolower($sign))) {
     echo "error_sign";
     exit();
 }

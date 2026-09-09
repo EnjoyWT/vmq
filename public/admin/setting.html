@@ -15,7 +15,7 @@
             <div class="layui-form-item">
                 <label class="layui-form-label">后台密码</label>
                 <div class="layui-input-block">
-                    <input type="text" id="pass" lay-verify="required" placeholder="请输入管理员密码" autocomplete="off"
+                    <input type="password" id="pass" lay-verify="required" placeholder="请输入管理员密码" autocomplete="new-password"
                         class="layui-input">
                 </div>
             </div>
@@ -31,15 +31,15 @@
             <div class="layui-form-item">
                 <label class="layui-form-label">异步回调</label>
                 <div class="layui-input-block">
-                    <input type="text" id="notifyUrl" lay-verify="required" placeholder="请输入异步回调地址" autocomplete="off"
-                        class="layui-input auto-domain" value="http://服务器域名/example/notify.php">
+                    <input type="text" id="notifyUrl" lay-verify="required" placeholder="https://你的CF域名/支付回调路径" autocomplete="off"
+                        class="layui-input">
                 </div>
             </div>
             <div class="layui-form-item">
                 <label class="layui-form-label">同步回调</label>
                 <div class="layui-input-block">
-                    <input type="text" id="returnUrl" lay-verify="required" placeholder="请输入支付完成后跳转地址"
-                        autocomplete="off" class="layui-input auto-domain" value="http://服务器域名/example/return.php">
+                    <input type="text" id="returnUrl" lay-verify="required" placeholder="https://你的CF域名/支付完成页"
+                        autocomplete="off" class="layui-input">
                 </div>
             </div>
 
@@ -110,7 +110,7 @@
 
                 var uploadInst = upload.render({
                     elem: '#wxup'
-                    , url: 'qr-code/test.php'
+                    , url: 'admin/index/decodeQrcode'
                     , auto: false
                     , choose: function (obj) {
                         obj.preview(function (index, file, result) {
@@ -125,7 +125,7 @@
                                         , time: 0
                                     });
 
-                                    $.post("qr-code/test.php", "base64=" + encodeURIComponent(result.split(",")[1]), function (data) {
+                                    $.post("admin/index/decodeQrcode", "base64=" + encodeURIComponent(result.split(",")[1]), function (data) {
                                         if (!data.data) {
                                             data = JSON.parse(data);
                                         }
@@ -172,7 +172,7 @@
 
                 var uploadInst2 = upload.render({
                     elem: '#zfbup'
-                    , url: 'qr-code/test.php'
+                    , url: 'admin/index/decodeQrcode'
                     , auto: false
                     , choose: function (obj) {
                         obj.preview(function (index, file, result) {
@@ -181,7 +181,7 @@
                                 , shade: 0.01
                                 , time: 0
                             });
-                            $.post("qr-code/test.php", "base64=" + encodeURIComponent(result.split(",")[1]), function (data) {
+                            $.post("admin/index/decodeQrcode", "base64=" + encodeURIComponent(result.split(",")[1]), function (data) {
                                 if (!data.data) {
                                     data = JSON.parse(data);
                                 }
@@ -271,7 +271,17 @@
                 }
                 wximg = decodeURIComponent(wximg.replace(/enQrcode\?url=/g, ""));
                 zfbimg = decodeURIComponent(zfbimg.replace(/enQrcode\?url=/g, ""));
-                $.post("admin/index/saveSetting", "user=" + user + "&pass=" + pass + "&notifyUrl=" + notifyUrl + "&returnUrl=" + returnUrl + "&key=" + key + "&wxpay=" + wximg + "&zfbpay=" + zfbimg + "&close=" + close + "&payQf=" + payQf, function (data) {
+                $.post("admin/index/saveSetting", {
+                    user: user,
+                    pass: pass,
+                    notifyUrl: notifyUrl,
+                    returnUrl: returnUrl,
+                    key: key,
+                    wxpay: wximg,
+                    zfbpay: zfbimg,
+                    close: close,
+                    payQf: payQf
+                }, function (data) {
                     if (data.code == 1) {
                         $.post("admin/index/getSettings", function (data) {
                             if (data.code == 1) {
@@ -314,16 +324,8 @@
                         $("#user").val(data.data.user);
                         $("#pass").val(data.data.pass);
 
-                        var currentDomain = getCurrentDomain();
                         var notifyUrl = data.data.notifyUrl;
                         var returnUrl = data.data.returnUrl;
-
-                        if (!notifyUrl || notifyUrl == "") {
-                            notifyUrl = currentDomain + "example/notify.php";
-                        }
-                        if (!returnUrl || returnUrl == "") {
-                            returnUrl = currentDomain + "example/return.php";
-                        }
 
                         $("#notifyUrl").val(notifyUrl);
                         $("#returnUrl").val(returnUrl);

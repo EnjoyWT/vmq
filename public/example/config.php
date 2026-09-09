@@ -1,13 +1,12 @@
 <?php
 
-$mainConfig = require __DIR__ . '/../../config/database.php';
 $db_config = [
-    'hostname' => $mainConfig['hostname'],
-    'database' => $mainConfig['database'],
-    'username' => $mainConfig['username'],
-    'password' => $mainConfig['password'],
-    'hostport' => $mainConfig['hostport'],
-    'charset'  => $mainConfig['charset']
+    'hostname' => getenv('VMQ_DB_HOST') ?: 'db',
+    'database' => getenv('VMQ_DB_NAME') ?: 'vmq',
+    'username' => getenv('VMQ_DB_USER') ?: 'vmq',
+    'password' => getenv('VMQ_DB_PASSWORD') ?: '',
+    'hostport' => getenv('VMQ_DB_PORT') ?: '3306',
+    'charset'  => 'utf8mb4',
 ];
 
 function getVmqKey()
@@ -28,7 +27,7 @@ function getVmqKey()
         }
 
         return '';
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
         return '';
     }
 }

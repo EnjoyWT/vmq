@@ -1,11 +1,23 @@
 <?php
-ini_set("error_reporting", "E_ALL & ~E_NOTICE");
-
 require_once __DIR__ . '/config.php';
 
-$host = "../createOrder";
+$payId = (string) ($_GET['payId'] ?? '');
+$param = (string) ($_GET['param'] ?? '');
+$type = (string) ($_GET['type'] ?? '');
+$price = (string) ($_GET['price'] ?? '');
+if (!preg_match('/^[a-zA-Z0-9_-]{1,100}$/', $payId) || !in_array($type, ['1', '2'], true) || !preg_match('/^\d+(?:\.\d{1,2})?$/', $price)) {
+    http_response_code(400);
+    exit('参数错误');
+}
 
-$sign = md5($_GET['payId'] . $_GET['param'] . $_GET['type'] . $_GET['price'] . $key);
-$p = "payId=" . $_GET['payId'] . '&param=' . $_GET['param'] . '&type=' . $_GET['type'] . "&price=" . $_GET['price'] . '&sign=' . $sign . '&isHtml=1';
+$sign = md5($payId . $param . $type . (float) $price . $key);
+$query = http_build_query([
+    'payId' => $payId,
+    'param' => $param,
+    'type' => $type,
+    'price' => $price,
+    'sign' => $sign,
+    'isHtml' => 1,
+], '', '&', PHP_QUERY_RFC3986);
 
-echo "<script>window.location.href = '" . $host . "?" . $p . "'</script>";
+header('Location: ../createOrder?' . $query, true, 302);

@@ -75,7 +75,7 @@
                         qrcode.callback = function (imgMsg, img64) {
 
                             if (imgMsg == "") {
-                                $.post("qr-code/test.php", "base64=" + encodeURIComponent(img64.split(",")[1]), function (data) {
+                                $.post("admin/index/decodeQrcode", "base64=" + encodeURIComponent(img64.split(",")[1]), function (data) {
                                     if (!data.data) {
                                         data = JSON.parse(data);
                                     }
