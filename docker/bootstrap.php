@@ -46,6 +46,7 @@ $columns = [
     'notify_attempts' => "TINYINT UNSIGNED NOT NULL DEFAULT 0 AFTER notify_url",
     'next_notify_date' => "BIGINT UNSIGNED NOT NULL DEFAULT 0 AFTER notify_attempts",
     'last_notify_error' => "VARCHAR(255) NOT NULL DEFAULT '' AFTER next_notify_date",
+    'notify_event_id' => "VARCHAR(64) NULL DEFAULT NULL AFTER last_notify_error",
 ];
 foreach ($columns as $column => $definition) {
     $query = $pdo->prepare('SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND COLUMN_NAME = ?');
@@ -53,6 +54,14 @@ foreach ($columns as $column => $definition) {
     if ((int) $query->fetchColumn() === 0) {
         $pdo->exec("ALTER TABLE pay_order ADD COLUMN {$column} {$definition}");
     }
+}
+
+$indexQuery = $pdo->prepare(
+    'SELECT COUNT(*) FROM information_schema.STATISTICS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND INDEX_NAME = ?'
+);
+$indexQuery->execute([$database, 'pay_order', 'uk_pay_order_notify_event_id']);
+if ((int) $indexQuery->fetchColumn() === 0) {
+    $pdo->exec('ALTER TABLE pay_order ADD UNIQUE KEY uk_pay_order_notify_event_id (notify_event_id)');
 }
 
 $select = $pdo->prepare('SELECT vvalue FROM setting WHERE vkey = ?');

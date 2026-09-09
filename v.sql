@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS `pay_order` (
   `notify_attempts` tinyint unsigned NOT NULL DEFAULT 0,
   `next_notify_date` bigint unsigned NOT NULL DEFAULT 0,
   `last_notify_error` varchar(255) NOT NULL DEFAULT '',
+  `notify_event_id` varchar(64) DEFAULT NULL,
   `order_id` varchar(64) NOT NULL,
   `param` varchar(500) NOT NULL DEFAULT '',
   `pay_date` bigint unsigned NOT NULL DEFAULT 0,
@@ -23,6 +24,7 @@ CREATE TABLE IF NOT EXISTS `pay_order` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_pay_order_order_id` (`order_id`),
   UNIQUE KEY `uk_pay_order_pay_id` (`pay_id`),
+  UNIQUE KEY `uk_pay_order_notify_event_id` (`notify_event_id`),
   KEY `idx_pay_order_match` (`state`, `type`, `really_price`),
   KEY `idx_pay_order_expire` (`state`, `create_date`),
   KEY `idx_pay_order_notify` (`state`, `next_notify_date`)

@@ -99,11 +99,19 @@ class Index
         if ($key === '') {
             return json($this->getReturn(-1, '请先配置通讯密钥'));
         }
+        $existingOrder = Db::name('pay_order')->where('pay_id', $payId)->find();
+        if ($existingOrder) {
+            if (
+                (int) $existingOrder['type'] !== $type ||
+                bccomp((string) $existingOrder['price'], $price, 2) !== 0 ||
+                (string) $existingOrder['param'] !== $param
+            ) {
+                return json($this->getReturn(-1, '商户订单号已存在且订单参数不一致'));
+            }
+            return json($this->getReturn(1, '订单已存在', $this->orderResult($existingOrder)));
+        }
         if ($this->setting('jkstate') !== '1') {
             return json($this->getReturn(-1, '监控端状态异常，请检查'));
-        }
-        if (Db::name('pay_order')->where('pay_id', $payId)->find()) {
-            return json($this->getReturn(-1, '商户订单号已存在'));
         }
 
         $payUrl = $this->setting($type === 1 ? 'wxpay' : 'zfbpay');
@@ -154,6 +162,7 @@ class Index
                 'notify_attempts' => 0,
                 'next_notify_date' => 0,
                 'last_notify_error' => '',
+                'notify_event_id' => $this->newNotifyEventId(),
                 'order_id' => $orderId,
                 'param' => $param,
                 'pay_date' => 0,
@@ -172,18 +181,17 @@ class Index
             return json($this->getReturn(-1, $message));
         }
 
-        $result = [
-            'payId' => $payId,
-            'orderId' => $orderId,
-            'payType' => $type,
+        $result = $this->orderResult([
+            'pay_id' => $payId,
+            'order_id' => $orderId,
+            'type' => $type,
             'price' => $price,
-            'reallyPrice' => $reallyPrice,
-            'payUrl' => $payUrl,
-            'isAuto' => $isAuto,
+            'really_price' => $reallyPrice,
+            'pay_url' => $payUrl,
+            'is_auto' => $isAuto,
             'state' => 0,
-            'timeOut' => $this->setting('close'),
-            'date' => $createDate,
-        ];
+            'create_date' => $createDate,
+        ]);
 
         if ((int) input('isHtml', 0) === 1) {
             return redirect('payPage/pay.html?orderId=' . rawurlencode($orderId));
@@ -198,18 +206,7 @@ class Index
             return json($this->getReturn(-1, '云端订单编号不存在'));
         }
 
-        return json($this->getReturn(1, '成功', [
-            'payId' => $order['pay_id'],
-            'orderId' => $order['order_id'],
-            'payType' => $order['type'],
-            'price' => $order['price'],
-            'reallyPrice' => $order['really_price'],
-            'payUrl' => $order['pay_url'],
-            'isAuto' => $order['is_auto'],
-            'state' => $order['state'],
-            'timeOut' => $this->setting('close'),
-            'date' => $order['create_date'],
-        ]));
+        return json($this->getReturn(1, '成功', $this->orderResult($order)));
     }
 
     public function checkOrder()
@@ -303,6 +300,7 @@ class Index
             Db::name('pay_order')->insert([
                 'close_date' => time(), 'create_date' => time(), 'is_auto' => 0, 'notify_url' => '',
                 'notify_attempts' => 0, 'next_notify_date' => 0, 'last_notify_error' => '',
+                'notify_event_id' => $this->newNotifyEventId(),
                 'order_id' => $unmatchedId, 'param' => '无订单转账', 'pay_date' => time(),
                 'pay_id' => $unmatchedId, 'pay_url' => '', 'price' => $priceRaw,
                 'really_price' => $priceRaw, 'return_url' => '', 'state' => 1, 'type' => $type,
@@ -381,7 +379,59 @@ class Index
         if (empty($order['notify_url'])) {
             return 'error: callback url is empty';
         }
+        $callbackSecret = trim((string) env('VMQ_CALLBACK_SECRET', ''));
+        if ($callbackSecret !== '') {
+            $timestamp = (string) time();
+            $body = json_encode([
+                'event_id' => $this->notifyEventId($order),
+                'event_type' => 'payment.succeeded',
+                'occurred_at' => (int) ($order['pay_date'] ?: time()),
+                'order_no' => (string) $order['pay_id'],
+                'provider_order_id' => (string) $order['order_id'],
+                'payment_method' => (int) $order['type'] === 1 ? 'wechat' : 'alipay',
+                'amount_cents' => (int) bcmul((string) $order['price'], '100', 0),
+                'payable_amount_cents' => (int) bcmul((string) $order['really_price'], '100', 0),
+            ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+            $signature = hash_hmac('sha256', $timestamp . '.' . $body, $callbackSecret);
+            return SafeHttpClient::postJson((string) $order['notify_url'], $body, [
+                'X-Vmq-Timestamp: ' . $timestamp,
+                'X-Vmq-Signature: v1=' . $signature,
+            ]);
+        }
         return SafeHttpClient::get($this->appendOrderQuery((string) $order['notify_url'], $order));
+    }
+
+    private function notifyEventId(array $order): string
+    {
+        $eventId = trim((string) ($order['notify_event_id'] ?? ''));
+        if ($eventId !== '') {
+            return $eventId;
+        }
+
+        $eventId = 'VMQ-' . substr(hash('sha256', (string) $order['order_id'] . '|' . (string) $order['pay_date']), 0, 48);
+        Db::name('pay_order')->where('id', $order['id'])->update(['notify_event_id' => $eventId]);
+        return $eventId;
+    }
+
+    private function newNotifyEventId(): string
+    {
+        return 'VMQ-' . bin2hex(random_bytes(24));
+    }
+
+    private function orderResult(array $order): array
+    {
+        return [
+            'payId' => $order['pay_id'],
+            'orderId' => $order['order_id'],
+            'payType' => (int) $order['type'],
+            'price' => number_format((float) $order['price'], 2, '.', ''),
+            'reallyPrice' => number_format((float) $order['really_price'], 2, '.', ''),
+            'payUrl' => $order['pay_url'],
+            'isAuto' => (int) $order['is_auto'],
+            'state' => (int) $order['state'],
+            'timeOut' => $this->setting('close'),
+            'date' => (int) $order['create_date'],
+        ];
     }
 
     private function appendOrderQuery(string $url, array $order): string

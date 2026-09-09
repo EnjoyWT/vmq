@@ -34,6 +34,7 @@ VMQ_DB_PASSWORD=随机长密码
 VMQ_DB_ROOT_PASSWORD=另一个随机长密码
 VMQ_ADMIN_PASSWORD=后台登录密码（至少10位）
 VMQ_API_KEY=APP通讯密钥（至少32位）
+VMQ_CALLBACK_SECRET=与 AuthHub 相同的回调 HMAC 密钥
 ```
 
 推荐生成方式：
@@ -45,11 +46,11 @@ openssl rand -hex 32
 把 Cloudflare 接收支付结果的 HTTPS 地址写入：
 
 ```dotenv
-VMQ_NOTIFY_URL=https://你的CF域名/支付回调路径
-VMQ_RETURN_URL=https://你的CF域名/支付完成页
+VMQ_NOTIFY_URL=https://auth.yoloxy.com/api/billing/vmq/notify
+VMQ_RETURN_URL=
 ```
 
-CF 回调接口验签成功并完成幂等处理后，响应体必须原样返回 `success`。Vmq 对失败回调采用指数退避自动重试，最多 10 次。
+CF 回调接口验签成功并完成幂等处理后，响应体必须原样返回 `success`。配置 `VMQ_CALLBACK_SECRET` 后，Vmq 使用 POST JSON 和 HMAC-SHA256 回调；Vmq 对失败回调采用指数退避自动重试，最多 10 次。
 
 ### 2. 启动
 
