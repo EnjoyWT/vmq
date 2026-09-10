@@ -259,18 +259,14 @@
                     layer.msg("请输入创建的订单几分钟后失效");
                     return;
                 }
-                var wximg = $("#wximg").attr("src");
-                if (wximg == "" || !wximg) {
-                    layer.msg("请上传微信无金额的收款二维码");
+                var wximg = $("#wximg").attr("src") || "";
+                var zfbimg = $("#zfbimg").attr("src") || "";
+                if (wximg == "" && zfbimg == "") {
+                    layer.msg("请至少上传一种无金额收款二维码");
                     return;
                 }
-                var zfbimg = $("#zfbimg").attr("src");
-                if (zfbimg == "" || !zfbimg) {
-                    layer.msg("请上传支付宝无金额的收款二维码");
-                    return;
-                }
-                wximg = decodeURIComponent(wximg.replace(/enQrcode\?url=/g, ""));
-                zfbimg = decodeURIComponent(zfbimg.replace(/enQrcode\?url=/g, ""));
+                wximg = wximg == "" ? "" : decodeURIComponent(wximg.replace(/enQrcode\?url=/g, ""));
+                zfbimg = zfbimg == "" ? "" : decodeURIComponent(zfbimg.replace(/enQrcode\?url=/g, ""));
                 $.post("admin/index/saveSetting", {
                     user: user,
                     pass: pass,
